@@ -1,0 +1,19 @@
+{
+  "name": "darkdeploy",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run --workspaces --if-present build",
+    "test": "npm run --workspaces --if-present test",
+    "lint": "npm run --workspaces --if-present lint"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.3"
+  }
+}

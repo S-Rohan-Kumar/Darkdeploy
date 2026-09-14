@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum FlagType {
+  BOOLEAN
+  MULTIVARIATE
+  AI_CONFIG
+}
+
+enum Operator {
+  EQUALS
+  NOT_EQUALS
+  IN
+  NOT_IN
+  CONTAINS
+  STARTS_WITH
+  ENDS_WITH
+  GREATER_THAN
+  LESS_THAN
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  role         Role       @default(MEMBER)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  auditLogs    AuditLog[]
+
+  @@map("users")
+}
+
+model Environment {
+  id        String   @id @default(cuid())
+  name      String  
+  key       String   @unique 
+  apiKey    String   @unique 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  flags     Flag[]
+
+  @@map("environments")
+}
+
+model Flag {
+  id                 String          @id @default(cuid())
+  key                String          
+  name               String          
+  description        String?
+  type               FlagType        @default(BOOLEAN)
+  enabled            Boolean         @default(false)
+  defaultValue       Boolean         @default(false)
+  rolloutPercentage  Float           @default(0.0)
+  rolloutSalt        String?
+  environmentId      String
+  environment        Environment     @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+  rules              TargetingRule[]
+  auditLogs          AuditLog[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+ 
+  @@unique([key, environmentId])
+  @@map("flags")
+}
+
+model TargetingRule {
+  id         String   @id @default(cuid())
+  flagId     String
+  flag       Flag     @relation(fields: [flagId], references: [id], onDelete: Cascade)
+  attribute  String   
+  operator   Operator
+  values     String[] 
+  serveValue Boolean  @default(true)
+  priority   Int      
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("targeting_rules")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  flagId     String?
+  flag       Flag?    @relation(fields: [flagId], references: [id], onDelete: SetNull)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String   
+  diff       Json?    
+  createdAt  DateTime @default(now())
+
+  @@map("audit_logs")
+}
