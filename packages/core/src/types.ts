@@ -26,7 +26,9 @@ export interface Flag {
     key: string;
     enabled: boolean;
     rules: TargetingRule[];
-    rollout: Rollout;
+    rollout?: Rollout;
+    rolloutPercentage?: number;
+    rolloutSalt?: string;
     defaultValue: boolean;
 }
 

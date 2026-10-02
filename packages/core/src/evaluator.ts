@@ -23,24 +23,28 @@ export function evaluate(
         }
     }
 
-    if (flag.rollout && flag.rollout.percentage !== undefined) {
-        if (flag.rollout.percentage <= 0) {
+    const rolloutPercentage = flag.rollout?.percentage ?? flag.rolloutPercentage;
+    const rolloutSalt = flag.rollout?.salt ?? flag.rolloutSalt;
+
+    if (rolloutPercentage !== undefined) {
+        if (rolloutPercentage <= 0) {
             return {
                 value: false,
                 reason: "ROLLOUT",
             };
         }
 
-        if (flag.rollout.percentage >= 100) {
+        if (rolloutPercentage >= 100) {
             return {
                 value: true,
                 reason: "ROLLOUT",
             };
         }
-        const salt = flag.rollout.salt || flag.key;
+
+        const salt = rolloutSalt || flag.key;
         const bucket = computeBucket(context.id, salt);
 
-        const isIncluded = bucket < flag.rollout.percentage;
+        const isIncluded = bucket < rolloutPercentage;
 
         return {
             value: isIncluded,

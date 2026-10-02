@@ -1,4 +1,4 @@
-import { TargetingRule, EvaluationContext, Operator } from './types.js';
+import { TargetingRule, EvaluationContext } from './types.js';
 
 export function matchRule(rule: TargetingRule, context: EvaluationContext): boolean {
   if (!context.attributes) {

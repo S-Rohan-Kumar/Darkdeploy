@@ -5,6 +5,8 @@
     "packages/*"
   ],
   "scripts": {
+    "dev:server": "npm run dev -w @darkdeploy/server",
+    "dev:dashboard": "npm run dev -w @darkdeploy/dashboard",
     "build": "npm run --workspaces --if-present build",
     "test": "npm run --workspaces --if-present test",
     "lint": "npm run --workspaces --if-present lint"
