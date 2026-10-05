@@ -45,3 +45,17 @@ streamRouter.get("/stream", (req: AuthenticatedRequest, res: Response) => {
 
     sseManager.addClient(clientId, environmentId, res);
 });
+
+
+streamRouter.get("/sdk/experiments", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const environmentId = req.environment!.id;
+        const experiments = await prisma.experiment.findMany({
+            where: { environmentId },
+        });
+        return res.json({ experiments });
+    } catch (error) {
+        console.error("Failed to fetch SDK experiments:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});

@@ -6,23 +6,27 @@ import { CreateFlagModal } from './components/CreateFlagModal';
 import { FlagDrawer } from './components/FlagDrawer';
 import { AuditLogView } from './components/AuditLogView';
 import { LoginModal } from './components/LoginModal';
+import { ExperimentsView } from './components/ExperimentsView';
+import { CreateExperimentModal } from './components/CreateExperimentModal';
+import { ExperimentResultsModal } from './components/ExperimentResultsModal';
 import { api } from './api/client';
-import { Environment, Flag, User } from './types';
+import { Environment, Flag, User, Experiment, Variant } from './types';
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(api.getCurrentUser());
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [selectedEnv, setSelectedEnv] = useState<Environment | null>(null);
   const [flags, setFlags] = useState<Flag[]>([]);
+  const [experiments, setExperiments] = useState<Experiment[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeView, setActiveView] = useState<'flags' | 'audit'>('flags');
+  const [activeView, setActiveView] = useState<'flags' | 'experiments' | 'audit'>('flags');
 
-  // Modals state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedFlagForEdit, setSelectedFlagForEdit] = useState<Flag | null>(null);
+  const [isCreateExperimentOpen, setIsCreateExperimentOpen] = useState(false);
+  const [selectedExperimentForResults, setSelectedExperimentForResults] = useState<Experiment | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Load environments on auth
   useEffect(() => {
     if (!currentUser) return;
 
@@ -31,7 +35,6 @@ export const App: React.FC = () => {
       .then((envs) => {
         setEnvironments(envs);
         if (envs.length > 0) {
-          // Default to development or first environment
           const dev = envs.find((e) => e.key === 'development') || envs[0];
           setSelectedEnv(dev);
         }
@@ -44,7 +47,6 @@ export const App: React.FC = () => {
       });
   }, [currentUser]);
 
-  // Load flags whenever selected environment changes
   const loadFlags = async () => {
     if (!selectedEnv) return;
     setLoading(true);
@@ -58,9 +60,20 @@ export const App: React.FC = () => {
     }
   };
 
+  const loadExperiments = async () => {
+    if (!selectedEnv) return;
+    try {
+      const data = await api.getExperiments(selectedEnv.id);
+      setExperiments(data);
+    } catch (err) {
+      console.error('Failed to load experiments:', err);
+    }
+  };
+
   useEffect(() => {
     if (selectedEnv) {
       loadFlags();
+      loadExperiments();
     }
   }, [selectedEnv]);
 
@@ -69,10 +82,8 @@ export const App: React.FC = () => {
     setCurrentUser(null);
   };
 
-  // Live Toggle Master Switch with Optimistic UI
   const handleToggleFlag = async (flag: Flag) => {
     const newEnabled = !flag.enabled;
-    // Optimistic update
     setFlags((prev) =>
       prev.map((f) => (f.id === flag.id ? { ...f, enabled: newEnabled } : f))
     );
@@ -81,14 +92,12 @@ export const App: React.FC = () => {
       await api.updateFlag(flag.id, { enabled: newEnabled });
     } catch (err) {
       console.error('Failed to toggle flag:', err);
-      // Revert on error
       setFlags((prev) =>
         prev.map((f) => (f.id === flag.id ? { ...f, enabled: flag.enabled } : f))
       );
     }
   };
 
-  // Create Flag
   const handleCreateFlag = async (data: {
     name: string;
     key: string;
@@ -101,20 +110,50 @@ export const App: React.FC = () => {
     setFlags((prev) => [newFlag, ...prev]);
   };
 
-  // Save updates from drawer (rules, rollout %)
   const handleSaveFlag = async (flagId: string, updates: Partial<Flag>) => {
     const updated = await api.updateFlag(flagId, updates);
     setFlags((prev) => prev.map((f) => (f.id === flagId ? updated : f)));
   };
 
-  // Delete flag
   const handleDeleteFlag = async (flag: Flag) => {
     if (!confirm(`Are you sure you want to delete flag "${flag.name}"?`)) return;
     await api.deleteFlag(flag.id);
     setFlags((prev) => prev.filter((f) => f.id !== flag.id));
   };
 
-  // Filter flags by search
+  const handleToggleExperiment = async (exp: Experiment) => {
+    const newEnabled = !exp.enabled;
+    setExperiments((prev) =>
+      prev.map((e) => (e.id === exp.id ? { ...e, enabled: newEnabled } : e))
+    );
+
+    try {
+      await api.updateExperiment(exp.id, { enabled: newEnabled });
+    } catch (err) {
+      console.error('Failed to toggle experiment:', err);
+      setExperiments((prev) =>
+        prev.map((e) => (e.id === exp.id ? { ...e, enabled: exp.enabled } : e))
+      );
+    }
+  };
+
+  const handleCreateExperiment = async (data: {
+    name: string;
+    key: string;
+    description: string;
+    environmentId: string;
+    variants: Variant[];
+  }) => {
+    const newExp = await api.createExperiment(data);
+    setExperiments((prev) => [newExp, ...prev]);
+  };
+
+  const handleDeleteExperiment = async (exp: Experiment) => {
+    if (!confirm(`Are you sure you want to delete experiment "${exp.name}"?`)) return;
+    await api.deleteExperiment(exp.id);
+    setExperiments((prev) => prev.filter((e) => e.id !== exp.id));
+  };
+
   const filteredFlags = flags.filter((f) => {
     const q = searchQuery.toLowerCase();
     return (
@@ -129,8 +168,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen w-screen bg-dark-900 text-slate-100 font-sans overflow-hidden">
-      {/* LaunchDarkly-styled Sidebar */}
+    <div className="flex h-screen w-screen bg-[#0c0e12] text-slate-100 font-sans overflow-hidden">
       <Sidebar
         currentUser={currentUser}
         activeView={activeView}
@@ -138,8 +176,7 @@ export const App: React.FC = () => {
         onLogout={handleLogout}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-dark-900">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#0c0e12]">
         {activeView === 'flags' ? (
           <>
             <Header
@@ -165,12 +202,20 @@ export const App: React.FC = () => {
               />
             )}
           </>
+        ) : activeView === 'experiments' ? (
+          <ExperimentsView
+            experiments={experiments}
+            environment={selectedEnv}
+            onToggleExperiment={handleToggleExperiment}
+            onViewResults={(exp) => setSelectedExperimentForResults(exp)}
+            onDeleteExperiment={handleDeleteExperiment}
+            onCreateExperiment={() => setIsCreateExperimentOpen(true)}
+          />
         ) : (
           <AuditLogView />
         )}
       </main>
 
-      {/* Modals & Drawers */}
       <CreateFlagModal
         environment={selectedEnv}
         isOpen={isCreateOpen}
@@ -183,6 +228,19 @@ export const App: React.FC = () => {
         isOpen={!!selectedFlagForEdit}
         onClose={() => setSelectedFlagForEdit(null)}
         onSave={handleSaveFlag}
+      />
+
+      <CreateExperimentModal
+        environment={selectedEnv}
+        isOpen={isCreateExperimentOpen}
+        onClose={() => setIsCreateExperimentOpen(false)}
+        onSubmit={handleCreateExperiment}
+      />
+
+      <ExperimentResultsModal
+        experiment={selectedExperimentForResults}
+        isOpen={!!selectedExperimentForResults}
+        onClose={() => setSelectedExperimentForResults(null)}
       />
     </div>
   );

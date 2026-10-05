@@ -51,6 +51,7 @@ model Environment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   flags     Flag[]
+  experiments Experiment[]
 
   @@map("environments")
 }
@@ -103,4 +104,36 @@ model AuditLog {
   createdAt  DateTime @default(now())
 
   @@map("audit_logs")
+}
+
+model Experiment {
+  id            String            @id @default(cuid())
+  key           String
+  name          String
+  description   String?
+  enabled       Boolean           @default(true)
+  variants      Json
+  environmentId String
+  environment   Environment       @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+  events        ExperimentEvent[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([key, environmentId])
+  @@map("experiments")
+}
+
+model ExperimentEvent {
+  id           String     @id @default(cuid())
+  experimentId String
+  experiment   Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  contextId    String
+  variantKey   String
+  type         String
+  value        Float?
+  timestamp    DateTime   @default(now())
+
+  @@index([experimentId, type])
+  @@index([experimentId, variantKey])
+  @@map("experiment_events")
 }

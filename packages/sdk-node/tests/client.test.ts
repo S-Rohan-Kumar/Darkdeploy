@@ -16,4 +16,11 @@ describe('DarkDeployClient (Node SDK)', () => {
     const customDefault = client.isEnabled('unknown-flag', { id: 'usr_1' }, true);
     expect(customDefault).toBe(true);
   });
+
+  it('returns null for non-existent experiments safely without throwing', () => {
+    const client = new DarkDeployClient({ apiKey: 'mock_key' });
+
+    const variant = client.getVariant('unknown-experiment', { id: 'usr_1' });
+    expect(variant).toBeNull();
+  });
 });

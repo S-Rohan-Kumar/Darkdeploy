@@ -1,4 +1,4 @@
-import { Flag, Environment, AuditLog, User } from '../types';
+import { Flag, Environment, AuditLog, User, Experiment, ExperimentResultsData } from '../types';
 
 const API_BASE = '/api';
 
@@ -119,5 +119,85 @@ export const api = {
     if (!res.ok) throw new Error('Failed to fetch audit logs');
     const data = await res.json();
     return data.auditLogs;
+  },
+
+  async getExperiments(environmentId: string): Promise<Experiment[]> {
+    const res = await fetch(`${API_BASE}/experiments?environmentId=${environmentId}`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch experiments');
+    const data = await res.json();
+    return data.experiments;
+  },
+
+  async createExperiment(data: {
+    key: string;
+    name: string;
+    description?: string;
+    environmentId: string;
+    variants: any[];
+  }): Promise<Experiment> {
+    const res = await fetch(`${API_BASE}/experiments`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to create experiment');
+    }
+    const result = await res.json();
+    return result.experiment;
+  },
+
+  async updateExperiment(
+    id: string,
+    updates: Partial<{
+      enabled: boolean;
+      name: string;
+      description: string | null;
+      variants: any[];
+    }>
+  ): Promise<Experiment> {
+    const res = await fetch(`${API_BASE}/experiments/${id}`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(updates),
+    });
+    if (!res.ok) throw new Error('Failed to update experiment');
+    const data = await res.json();
+    return data.experiment;
+  },
+
+  async deleteExperiment(id: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/experiments/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete experiment');
+  },
+
+  async getExperimentResults(id: string): Promise<ExperimentResultsData> {
+    const res = await fetch(`${API_BASE}/experiments/${id}/results`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch experiment results');
+    return res.json();
+  },
+
+  async trackEvent(data: {
+    experimentKey: string;
+    contextId: string;
+    variantKey: string;
+    type: 'EXPOSURE' | 'CONVERSION';
+    value?: number;
+    environmentId: string;
+  }): Promise<void> {
+    const res = await fetch(`${API_BASE}/experiments/events`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to track event');
   },
 };

@@ -61,3 +61,45 @@ export interface AuditLog {
   diff?: any;
   createdAt: string;
 }
+
+export interface Variant {
+  key: string;
+  name?: string;
+  weight: number;
+  payload?: any;
+}
+
+export interface Experiment {
+  id: string;
+  key: string;
+  name: string;
+  description?: string | null;
+  enabled: boolean;
+  variants: Variant[];
+  environmentId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ZTestResult {
+  controlConversionRate: number;
+  variantConversionRate: number;
+  relativeLift: number;
+  zScore: number;
+  pValue: number;
+  isSignificant: boolean;
+  confidenceLevel: number;
+}
+
+export interface ExperimentResultsData {
+  experiment: {
+    id: string;
+    key: string;
+    name: string;
+    enabled: boolean;
+    variants: Variant[];
+  };
+  variantStats: Record<string, { exposures: number; conversions: number; conversionRate: number }>;
+  significanceResults: Record<string, ZTestResult | null>;
+  totalEvents: number;
+}
