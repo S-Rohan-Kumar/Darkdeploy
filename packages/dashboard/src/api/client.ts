@@ -1,6 +1,9 @@
 import { Flag, Environment, AuditLog, User, Experiment, ExperimentResultsData, AIConfig } from '../types';
 
-const API_BASE = '/api';
+const viteEnv = (import.meta as unknown as { env?: { VITE_API_URL?: string } }).env;
+const API_BASE = viteEnv?.VITE_API_URL
+  ? `${viteEnv.VITE_API_URL}/api`
+  : '/api';
 
 function getAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('darkdeploy_token');
