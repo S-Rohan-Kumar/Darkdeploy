@@ -7,6 +7,7 @@ import {
     Experiment,
     Variant,
     assignVariant,
+    AIConfig,
 } from "@darkdeploy/core";
 
 export interface ClientConfig {
@@ -188,6 +189,24 @@ export class DarkDeployClient {
 
     public isEnabled(flagKey: string, context: EvaluationContext, defaultValue = false): boolean {
         return this.evaluate(flagKey, context, defaultValue).value;
+    }
+
+    public getAIConfig(
+        flagKey: string,
+        context: EvaluationContext,
+        fallbackConfig?: AIConfig
+    ): AIConfig | null {
+        const flag = this.flagsCache.get(flagKey);
+        if (!flag) {
+            return fallbackConfig || null;
+        }
+
+        const isMatch = this.isEnabled(flagKey, context, flag.defaultValue);
+        if (!isMatch) {
+            return fallbackConfig || null;
+        }
+
+        return (flag.aiConfig as AIConfig) || fallbackConfig || null;
     }
 
     public getVariant(

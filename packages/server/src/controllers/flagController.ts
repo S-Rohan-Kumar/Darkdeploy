@@ -36,6 +36,8 @@ export async function createFlag(req: AuthenticatedRequest, res: Response) {
             environmentId,
             defaultValue,
             rolloutPercentage,
+            type,
+            aiConfig,
         } = req.body;
         const userId = req.user?.id;
         if (!key || !name || !environmentId) {
@@ -50,6 +52,8 @@ export async function createFlag(req: AuthenticatedRequest, res: Response) {
                     name,
                     description,
                     environmentId,
+                    type: type ?? "BOOLEAN",
+                    aiConfig: aiConfig ?? null,
                     defaultValue: defaultValue ?? false,
                     rolloutPercentage: rolloutPercentage ?? 0.0,
                     enabled: false,
@@ -121,6 +125,8 @@ export async function updateFlag(req: AuthenticatedRequest, res: Response) {
             name,
             description,
             rules,
+            type,
+            aiConfig,
         } = req.body;
         const existingFlag = await prisma.flag.findUnique({
             where: { id },
@@ -160,6 +166,8 @@ export async function updateFlag(req: AuthenticatedRequest, res: Response) {
                             : existingFlag.defaultValue,
                     name: name ?? existingFlag.name,
                     description: description ?? existingFlag.description,
+                    type: type ?? existingFlag.type,
+                    aiConfig: aiConfig !== undefined ? aiConfig : existingFlag.aiConfig,
                 },
                 include: {
                     rules: { orderBy: { priority: "asc" } },

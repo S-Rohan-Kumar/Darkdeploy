@@ -13,7 +13,7 @@ export function evaluate(
         };
     }
 
-    for (const rule of flag.rules) {
+    for (const rule of flag.rules || []) {
         if (matchRule(rule, context)) {
             return {
                 value: rule.serveValue !== undefined ? rule.serveValue : true,

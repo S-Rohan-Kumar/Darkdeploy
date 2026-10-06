@@ -23,4 +23,19 @@ describe('DarkDeployClient (Node SDK)', () => {
     const variant = client.getVariant('unknown-experiment', { id: 'usr_1' });
     expect(variant).toBeNull();
   });
+
+  it('returns fallback AI config or null for non-existent flags', () => {
+    const client = new DarkDeployClient({ apiKey: 'mock_key' });
+
+    const aiConfig = client.getAIConfig('unknown-ai-flag', { id: 'usr_1' });
+    expect(aiConfig).toBeNull();
+
+    const fallback = {
+      model: 'gpt-4o',
+      temperature: 0.7,
+      systemPrompt: 'Default assistant',
+    };
+    const result = client.getAIConfig('unknown-ai-flag', { id: 'usr_1' }, fallback);
+    expect(result).toEqual(fallback);
+  });
 });

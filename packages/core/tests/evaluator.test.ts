@@ -24,7 +24,7 @@ describe("Flag Evaluator Engine", () => {
         const disabledFlag: Flag = { ...baseFlag, enabled: false };
         const context: EvaluationContext = {
             id: "usr_1",
-            attributes: { plan: "enterprise" }, // even though rule matches!
+            attributes: { plan: "enterprise" },
         };
 
         const result = evaluate(disabledFlag, context);

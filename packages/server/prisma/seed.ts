@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // 1. Create Default Admin User
   const adminEmail = 'admin@darkdeploy.io';
   const existingUser = await prisma.user.findUnique({
     where: { email: adminEmail },
@@ -27,7 +26,6 @@ async function main() {
     console.log(`✅ Created Admin User: ${adminEmail} (password: admin123456)`);
   }
 
-  // 2. Create Environments: Dev & Production
   const devEnv = await prisma.environment.upsert({
     where: { key: 'development' },
     update: {},
@@ -51,7 +49,6 @@ async function main() {
   console.log(`✅ Development Environment API Key: ${devEnv.apiKey}`);
   console.log(`✅ Production Environment API Key:  ${prodEnv.apiKey}`);
 
-  // 3. Create a Demo Flag in Development
   const demoFlag = await prisma.flag.upsert({
     where: {
       key_environmentId: {

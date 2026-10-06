@@ -60,7 +60,6 @@ export const AuditLogView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Diff Viewer */}
                 {hasDiff && (before || after) && (
                   <div className="bg-dark-900 border border-dark-750 rounded-lg p-3 text-xs font-mono space-y-1 mt-2">
                     {before && (

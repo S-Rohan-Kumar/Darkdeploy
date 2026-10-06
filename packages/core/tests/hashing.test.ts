@@ -26,7 +26,7 @@ describe('Deterministic Hashing Engine', () => {
 
   it('should distribute within standard error tolerance across 10,000 users', () => {
     const TOTAL_USERS = 10_000;
-    const TARGET_PERCENT = 20.0; // 20% rollout
+    const TARGET_PERCENT = 20.0;
     let activeUsers = 0;
 
     for (let i = 0; i < TOTAL_USERS; i++) {

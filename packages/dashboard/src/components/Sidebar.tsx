@@ -24,8 +24,8 @@ import { User } from '../types';
 
 interface SidebarProps {
   currentUser: User | null;
-  activeView: 'flags' | 'experiments' | 'audit';
-  setActiveView: (view: 'flags' | 'experiments' | 'audit') => void;
+  activeView: 'flags' | 'experiments' | 'audit' | 'agents';
+  setActiveView: (view: 'flags' | 'experiments' | 'audit' | 'agents') => void;
   onLogout: () => void;
 }
 
@@ -92,10 +92,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span>Code</span>
           </button>
           <button
-            disabled
-            className="flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded-md text-slate-600 text-xs font-medium cursor-not-allowed"
+            onClick={() => setActiveView('agents')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded-md text-xs font-medium transition ${
+              activeView === 'agents'
+                ? 'bg-[#181c25] text-white shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
           >
-            <Bot className="w-3.5 h-3.5" />
+            <Bot className="w-3.5 h-3.5 text-cyan-400" />
             <span>Agents</span>
           </button>
         </div>
@@ -128,6 +132,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <Flag className="w-3.5 h-3.5 text-cyan-400" />
               <span>Flags</span>
+            </button>
+            <button
+              onClick={() => setActiveView('agents')}
+              className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                activeView === 'agents'
+                  ? 'bg-[#181c25] text-white font-semibold border-l-2 border-cyan-400'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-[#14171d]'
+              }`}
+            >
+              <Bot className="w-3.5 h-3.5 text-cyan-400" />
+              <span>AI Configs</span>
             </button>
             <button
               disabled

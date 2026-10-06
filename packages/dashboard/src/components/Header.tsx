@@ -30,12 +30,10 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="border-b border-dark-750 bg-dark-900 px-6 py-4 space-y-4">
-      {/* Top Title & Environment Pill & Create Flag */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold tracking-tight text-white">Flags</h1>
 
         <div className="flex items-center gap-3">
-          {/* Environment Selector Dropdown */}
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -72,7 +70,6 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* Create Flag Button */}
           <button
             onClick={onCreateFlag}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-brand-500 hover:bg-brand-600 text-white text-xs font-semibold shadow-md transition"
@@ -83,9 +80,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Search & Action Bar */}
       <div className="flex items-center justify-between gap-4">
-        {/* Search Bar */}
         <div className="relative flex-1 max-w-lg">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
@@ -97,7 +92,6 @@ export const Header: React.FC<HeaderProps> = ({
           />
         </div>
 
-        {/* Filters, Sort, Display Toolbar */}
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-dark-750 hover:bg-dark-800 text-xs font-medium text-slate-400 hover:text-slate-200 transition">
             <Filter className="w-3.5 h-3.5" />

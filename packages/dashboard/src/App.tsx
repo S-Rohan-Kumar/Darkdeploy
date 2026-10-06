@@ -10,7 +10,7 @@ import { ExperimentsView } from './components/ExperimentsView';
 import { CreateExperimentModal } from './components/CreateExperimentModal';
 import { ExperimentResultsModal } from './components/ExperimentResultsModal';
 import { api } from './api/client';
-import { Environment, Flag, User, Experiment, Variant } from './types';
+import { Environment, Flag, User, Experiment, Variant, AIConfig } from './types';
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(api.getCurrentUser());
@@ -19,7 +19,7 @@ export const App: React.FC = () => {
   const [flags, setFlags] = useState<Flag[]>([]);
   const [experiments, setExperiments] = useState<Experiment[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeView, setActiveView] = useState<'flags' | 'experiments' | 'audit'>('flags');
+  const [activeView, setActiveView] = useState<'flags' | 'experiments' | 'audit' | 'agents'>('flags');
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedFlagForEdit, setSelectedFlagForEdit] = useState<Flag | null>(null);
@@ -105,6 +105,8 @@ export const App: React.FC = () => {
     defaultValue: boolean;
     rolloutPercentage: number;
     environmentId: string;
+    type?: 'BOOLEAN' | 'MULTIVARIATE' | 'AI_CONFIG';
+    aiConfig?: AIConfig | null;
   }) => {
     const newFlag = await api.createFlag(data);
     setFlags((prev) => [newFlag, ...prev]);
@@ -155,6 +157,9 @@ export const App: React.FC = () => {
   };
 
   const filteredFlags = flags.filter((f) => {
+    if (activeView === 'agents' && f.type !== 'AI_CONFIG') {
+      return false;
+    }
     const q = searchQuery.toLowerCase();
     return (
       f.name.toLowerCase().includes(q) ||
@@ -177,7 +182,7 @@ export const App: React.FC = () => {
       />
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#0c0e12]">
-        {activeView === 'flags' ? (
+        {activeView === 'flags' || activeView === 'agents' ? (
           <>
             <Header
               environments={environments}

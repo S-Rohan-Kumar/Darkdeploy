@@ -18,15 +18,24 @@ export interface TargetingRule {
   priority?: number;
 }
 
+export interface AIConfig {
+  model: string;
+  temperature: number;
+  systemPrompt: string;
+  maxTokens?: number;
+}
+
 export interface Flag {
   id: string;
   key: string;
   name: string;
   description?: string | null;
+  type?: 'BOOLEAN' | 'MULTIVARIATE' | 'AI_CONFIG';
   enabled: boolean;
   defaultValue: boolean;
   rolloutPercentage: number;
   rolloutSalt?: string | null;
+  aiConfig?: AIConfig | null;
   environmentId: string;
   rules: TargetingRule[];
   createdAt: string;

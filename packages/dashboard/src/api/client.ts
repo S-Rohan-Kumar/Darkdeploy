@@ -1,4 +1,4 @@
-import { Flag, Environment, AuditLog, User, Experiment, ExperimentResultsData } from '../types';
+import { Flag, Environment, AuditLog, User, Experiment, ExperimentResultsData, AIConfig } from '../types';
 
 const API_BASE = '/api';
 
@@ -69,6 +69,8 @@ export const api = {
     environmentId: string;
     defaultValue?: boolean;
     rolloutPercentage?: number;
+    type?: 'BOOLEAN' | 'MULTIVARIATE' | 'AI_CONFIG';
+    aiConfig?: AIConfig | null;
   }): Promise<Flag> {
     const res = await fetch(`${API_BASE}/flags`, {
       method: 'POST',
@@ -91,6 +93,8 @@ export const api = {
       defaultValue: boolean;
       name: string;
       description: string | null;
+      type: 'BOOLEAN' | 'MULTIVARIATE' | 'AI_CONFIG';
+      aiConfig: AIConfig | null;
       rules: any[];
     }>
   ): Promise<Flag> {
