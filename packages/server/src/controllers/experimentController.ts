@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import { sseManager } from "../services/sseManager.js";
 import { AuthenticatedRequest } from "../middleware/auth.js";
@@ -32,7 +33,7 @@ export async function createExperiment(req: AuthenticatedRequest, res: Response)
             return res.status(400).json({ error: "key, name, environmentId, and variants are required" });
         }
 
-        const experiment = await prisma.$transaction(async (tx) => {
+        const experiment = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             const exp = await tx.experiment.create({
                 data: {
                     key,
@@ -78,7 +79,7 @@ export async function updateExperiment(req: AuthenticatedRequest, res: Response)
             return res.status(404).json({ error: "Experiment not found" });
         }
 
-        const updated = await prisma.$transaction(async (tx) => {
+        const updated = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             const exp = await tx.experiment.update({
                 where: { id },
                 data: {
@@ -119,7 +120,7 @@ export async function deleteExperiment(req: AuthenticatedRequest, res: Response)
             return res.status(404).json({ error: "Experiment not found" });
         }
 
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             await tx.auditLog.create({
                 data: {
                     userId,

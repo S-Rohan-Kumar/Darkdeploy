@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import { sseManager } from "../services/sseManager.js";
 import { AuthenticatedRequest } from "../middleware/auth.js";
@@ -45,7 +46,7 @@ export async function createFlag(req: AuthenticatedRequest, res: Response) {
                 .status(400)
                 .json({ error: "key, name, and environmentId are required" });
         }
-        const newFlag = await prisma.$transaction(async (tx) => {
+        const newFlag = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             const flag = await tx.flag.create({
                 data: {
                     key,
@@ -91,7 +92,7 @@ export async function deleteFlag(req: AuthenticatedRequest, res: Response) {
         if (!existingFlag) {
             return res.status(404).json({ error: "Flag not found" });
         }
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             await tx.auditLog.create({
                 data: {
                     flagId: null,
@@ -135,7 +136,7 @@ export async function updateFlag(req: AuthenticatedRequest, res: Response) {
         if (!existingFlag) {
             return res.status(404).json({ error: "Flag not found" });
         }
-        const updatedFlag = await prisma.$transaction(async (tx) => {
+        const updatedFlag = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             if (rules && Array.isArray(rules)) {
                 await tx.targetingRule.deleteMany({ where: { flagId: id } });
                 if (rules.length > 0) {
