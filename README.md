@@ -22,12 +22,6 @@ DarkDeploy is an open-source, developer-first alternative to LaunchDarkly, Optim
 
 ---
 
-## Keywords
-
-`feature flags`, `feature toggles`, `a/b testing`, `experimentation platform`, `split testing`, `launchdarkly alternative`, `optimizely alternative`, `statsig alternative`, `server sent events`, `sse streaming`, `dynamic llm prompts`, `ai configs`, `prompt management`, `prompt injection`, `two proportion z-test`, `statistical significance`, `p-value calculator`, `deterministic hashing`, `sha-1 bucketing`, `zero latency`, `react dashboard`, `prisma orm`, `neon postgresql`, `node sdk`, `typescript monorepo`.
-
----
-
 ## System Architecture
 
 ```mermaid
@@ -136,10 +130,7 @@ Default credentials created:
 
 ### 4. Start Development Servers
 ```bash
-# Terminal 1: Backend API & SSE Engine
 npm run dev:server
-
-# Terminal 2: React Dashboard
 npm run dev:dashboard
 ```
 - **Dashboard**: `http://localhost:3000`
@@ -150,7 +141,6 @@ npm run dev:dashboard
 ```bash
 npm run demo:store
 ```
-Watch flags, A/B experiments, and AI configs evaluate in real time, and toggle flags in the dashboard to see immediate terminal stream updates!
 
 ---
 
@@ -191,11 +181,9 @@ const isEligible = client.isEnabled("vip-pricing", {
 
 ### A/B Testing & Tracking
 ```typescript
-// Deterministic variant assignment (auto-tracks EXPOSURE)
 const variant = client.getVariant("checkout-color-exp", { id: "usr_42" });
 console.log("Assigned variant:", variant?.key);
 
-// Record CONVERSION event
 await client.track("checkout-color-exp", { id: "usr_42" }, "CONVERSION", 99.00);
 ```
 
@@ -212,15 +200,6 @@ console.log("System Prompt:", aiConfig.systemPrompt);
 ```
 
 ---
-
-## Running Test Suite
-
-```bash
-npm test
-```
-- **22/22 tests passing** in `@darkdeploy/core` (Hashing, Rules, Evaluations, Stats, Experiments).
-- **4/4 tests passing** in `@darkdeploy/node-sdk` (Init, Graceful fallbacks, AI configs).
-- **Total: 26/26 unit tests passing**.
 
 ---
 

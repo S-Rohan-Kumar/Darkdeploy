@@ -32,7 +32,7 @@ import { DarkDeployClient } from "@darkdeploy/node-sdk";
 
 const client = new DarkDeployClient({
   apiKey: "dd_dev_d934289e58292e134bcde54fbf153aa7",
-  baseUrl: "https://darkdeploy-api.onrender.com", // Or your local server: http://localhost:4000
+  baseUrl: "https://darkdeploy-api.onrender.com",
 });
 
 await client.initialize();
@@ -57,7 +57,7 @@ const isEnabled = client.isEnabled("new-checkout-flow", {
 });
 
 if (isEnabled) {
-  // Render new 1-click checkout experience
+  renderCheckoutV2();
 }
 ```
 
@@ -65,8 +65,8 @@ Detailed evaluation with explanation:
 
 ```typescript
 const result = client.evaluate("new-checkout-flow", { id: "usr_9812" });
-console.log(result.value);  // true or false
-console.log(result.reason); // "RULE_MATCH" | "ROLLOUT" | "DEFAULT" | "OFF"
+console.log(result.value);
+console.log(result.reason);
 ```
 
 ---
@@ -78,16 +78,14 @@ Assign users to experiment variants and track conversion goals:
 ```typescript
 const experimentKey = "checkout-button-experiment";
 
-// Automatically records an EXPOSURE event to the DarkDeploy telemetry pipeline
 const variant = client.getVariant(experimentKey, { id: "usr_9812" });
 console.log(`Variant assigned: ${variant?.key} (${variant?.name})`);
 
-// When customer completes purchase, record the CONVERSION metric
 await client.track(
   experimentKey,
   { id: "usr_9812" },
   "CONVERSION",
-  49.99 // Optional revenue value
+  49.99
 );
 ```
 
@@ -109,8 +107,8 @@ const aiConfig = client.getAIConfig(
   }
 );
 
-console.log("Model:", aiConfig.model); // e.g. "claude-3-5-sonnet"
-console.log("Temperature:", aiConfig.temperature); // e.g. 0.2
+console.log("Model:", aiConfig.model);
+console.log("Temperature:", aiConfig.temperature);
 console.log("Prompt:", aiConfig.systemPrompt);
 ```
 
@@ -129,10 +127,6 @@ console.log("Prompt:", aiConfig.systemPrompt);
 | `close()` | None | `void` | Closes SSE connection and flushes local cache. |
 
 ---
-
-## Keywords
-
-`darkdeploy`, `feature flags`, `feature toggles`, `launchdarkly alternative`, `split testing`, `ab testing`, `experimentation`, `server sent events`, `sse streaming`, `dynamic prompts`, `llm config`, `ai flags`, `hot reload prompts`, `node sdk`, `typescript`.
 
 ## License
 

@@ -1,6 +1,6 @@
 {
   "name": "@darkdeploy/core",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "description": "Core evaluation, hashing, and statistical significance engine for DarkDeploy",
   "license": "MIT",
   "type": "module",

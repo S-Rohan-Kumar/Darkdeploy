@@ -77,8 +77,8 @@ const result = evaluate(flag, {
   attributes: { plan: "enterprise", spend: 750 },
 });
 
-console.log(result.value); // true
-console.log(result.reason); // "RULE_MATCH"
+console.log(result.value);
+console.log(result.reason);
 ```
 
 ### 3. A/B Experiment Variant Allocation
@@ -114,21 +114,17 @@ $$\hat{p} = \frac{c_A + c_B}{n_A + n_B}, \quad Z = \frac{\hat{p}_B - \hat{p}_A}{
 import { calculateZTest } from "@darkdeploy/core";
 
 const stats = calculateZTest(
-  1000, 100, // Control: 1,000 visitors, 100 conversions (10.0%)
-  1000, 145  // Variant: 1,000 visitors, 145 conversions (14.5%)
+  1000, 100,
+  1000, 145
 );
 
-console.log(`Relative Lift: ${stats.relativeLift}%`); // +45.0%
-console.log(`Z-Score: ${stats.zScore.toFixed(3)}`);     // 2.982
-console.log(`P-Value: ${stats.pValue.toFixed(4)}`);     // 0.0029
-console.log(`Significant (95% CI): ${stats.isSignificant}`); // true
+console.log(`Relative Lift: ${stats.relativeLift}%`);
+console.log(`Z-Score: ${stats.zScore.toFixed(3)}`);
+console.log(`P-Value: ${stats.pValue.toFixed(4)}`);
+console.log(`Significant (95% CI): ${stats.isSignificant}`);
 ```
 
 ---
-
-## Keywords
-
-`feature flags`, `feature toggles`, `a/b testing`, `experimentation`, `z-test`, `hypothesis testing`, `statistical significance`, `p-value`, `deterministic hashing`, `sha-1 bucketing`, `zero dependency`, `targeting rules`, `ai configs`, `dynamic prompts`.
 
 ## License
 
