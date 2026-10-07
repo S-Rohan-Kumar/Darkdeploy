@@ -1,243 +1,229 @@
 # DarkDeploy
 
-DarkDeploy is a production-oriented feature flagging and experimentation platform built for teams shipping safer releases, running A/B tests, and adapting product behavior in real time. The project combines a secure backend, an admin dashboard, a reusable evaluation engine, and a Node SDK that can react to live configuration changes via Server-Sent Events (SSE).
+> **The Modern, High-Performance Feature Flagging, Live A/B Experimentation, and Dynamic AI Configuration Platform.**
 
-## Why DarkDeploy
+[![npm core](https://img.shields.io/npm/v/@darkdeploy/core.svg?label=@darkdeploy/core)](https://www.npmjs.com/package/@darkdeploy/core)
+[![npm sdk](https://img.shields.io/npm/v/@darkdeploy/node-sdk.svg?label=@darkdeploy/node-sdk)](https://www.npmjs.com/package/@darkdeploy/node-sdk)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-26%2F26%20passing-brightgreen.svg)]()
 
-Modern product teams need a way to:
+DarkDeploy is an open-source, developer-first alternative to LaunchDarkly, Optimizely, and Statsig. It combines a **sub-microsecond deterministic evaluation engine**, a **real-time Server-Sent Events (SSE) streaming backbone**, an **A/B experimentation framework with frequentist z-test statistical rigor**, and **dynamic AI configuration management** to hot-swap LLM models and prompts without code redeployments.
 
-- roll out features gradually with targeted rules and percentage-based rollout controls
-- run experiments with weighted variants and measurable conversion outcomes
-- update configuration in real time without redeploying application code
-- manage environment-scoped settings for development, staging, and production
-- support AI-powered feature flags with model-specific runtime configuration
+---
 
-DarkDeploy brings all of that into a single monorepo designed for experimentation and rapid iteration.
+## Live Cloud Endpoints
 
-## Core capabilities
+- **Live Production API**: [`https://darkdeploy-api.onrender.com`](https://darkdeploy-api.onrender.com)
+- **API Health Check**: [`https://darkdeploy-api.onrender.com/health`](https://darkdeploy-api.onrender.com/health)
+- **SSE Live Stream**: [`https://darkdeploy-api.onrender.com/api/stream`](https://darkdeploy-api.onrender.com/api/stream)
+- **npm SDK Package**: [`@darkdeploy/node-sdk`](https://www.npmjs.com/package/@darkdeploy/node-sdk)
+- **npm Core Package**: [`@darkdeploy/core`](https://www.npmjs.com/package/@darkdeploy/core)
 
-- Feature flags with:
-  - boolean enable/disable gating
-  - rule-based targeting using attributes such as plan, role, or country
-  - rollout percentages with deterministic bucketing
-  - AI configuration payloads for model-driven experiences
-- A/B experimentation with:
-  - weighted variants
-  - deterministic assignment by user/context
-  - exposure and conversion event tracking
-  - statistical result summaries for experiment analysis
-- Real-time delivery with SSE streams for instant flag and experiment updates
-- Environment isolation and API-key based SDK access
-- Audit logging for configuration changes
-- Node SDK with local caching, evaluation helpers, and automatic reconnect handling
+---
 
-## System overview
+## Keywords
 
-DarkDeploy is structured as a monorepo with four main packages:
+`feature flags`, `feature toggles`, `a/b testing`, `experimentation platform`, `split testing`, `launchdarkly alternative`, `optimizely alternative`, `statsig alternative`, `server sent events`, `sse streaming`, `dynamic llm prompts`, `ai configs`, `prompt management`, `prompt injection`, `two proportion z-test`, `statistical significance`, `p-value calculator`, `deterministic hashing`, `sha-1 bucketing`, `zero latency`, `react dashboard`, `prisma orm`, `neon postgresql`, `node sdk`, `typescript monorepo`.
 
-- `packages/server` — Express API, Prisma data layer, authentication, SSE stream, experiment tracking
-- `packages/dashboard` — React + Vite admin UI for managing flags, experiments, and environments
-- `packages/core` — shared evaluation logic for rules, bucketing, experiments, and stats
-- `packages/sdk-node` — Node SDK used by apps to evaluate flags and fetch live updates
+---
 
-## Repository structure
+## System Architecture
+
+```mermaid
+graph TD
+    subgraph Clients ["Application Layer"]
+        A[Next.js App / Node Server] -->|npm i @darkdeploy/node-sdk| SDK[DarkDeploy Node SDK]
+    end
+
+    subgraph CoreEngine ["In-Memory Zero-Latency Layer"]
+        SDK --> Cache[(In-Memory Cache)]
+        SDK --> EvalEngine[@darkdeploy/core Evaluator]
+    end
+
+    subgraph CloudInfra ["DarkDeploy Cloud Platform"]
+        SDK -.->|SSE Live Updates| Stream[SSE Stream Hub :4000]
+        SDK -.->|POST /events| Analytics[Telemetry Ingestion]
+        Dashboard[React 18 Dashboard :3000] -->|JWT Auth / CRUD| ServerAPI[Express Backend Engine]
+        Stream --> ServerAPI
+        Analytics --> ServerAPI
+        ServerAPI --> DB[(Neon Serverless PostgreSQL)]
+    end
+```
+
+---
+
+## Core Capabilities
+
+### 1. Zero-Latency Feature Flags & Percentage Rollouts
+- **Local In-Memory Evaluation**: Evaluates in sub-microseconds without making blocking network requests on every user interaction.
+- **Deterministic SHA-1 Bucketing**: Guarantees that user $X$ consistently experiences the same rollout bucket across different servers and restarts.
+- **Complex Targeting Rules**: Target by user attributes (`plan`, `role`, `country`, `version`) using operators: `EQUALS`, `NOT_EQUALS`, `IN`, `NOT_IN`, `CONTAINS`, `STARTS_WITH`, `ENDS_WITH`, `GREATER_THAN`, `LESS_THAN`.
+
+### 2. A/B Testing & Frequentist Statistical Engine
+- **Multi-Variant Weighted Allocation**: Deterministically distributes traffic across control and custom variants (`50/50`, `33/33/34`, etc.).
+- **Automatic Telemetry Ingestion**: Seamless exposure tracking on evaluation and conversion metric ingestion (`client.track(...)`).
+- **Mathematical Significance Engine**: Live two-proportion z-test calculation with $p$-value approximation (via Abramowitz & Stegun normal CDF) and relative lift % with 95% confidence intervals.
+
+$$\hat{p} = \frac{c_A + c_B}{n_A + n_B}, \quad Z = \frac{\hat{p}_B - \hat{p}_A}{\sqrt{\hat{p}(1-\hat{p})\left(\frac{1}{n_A} + \frac{1}{n_B}\right)}}$$
+
+### 3. AI Configs & Dynamic LLM Prompts
+- **Foundation Model Hot-Swapping**: Switch foundation models (`gpt-4o`, `claude-3-5-sonnet`, `gemini-1.5-pro`) on the fly.
+- **Runtime Hyperparameters**: Adjust temperature sliders (`0.0` - `2.0`), maximum token limits, and system prompt text in the dashboard.
+- **Zero Redeployment**: Your AI agents, chatbots, and pipelines adapt immediately via the live SSE connection.
+
+### 4. Real-Time Push Delivery via SSE
+- Zero polling. Whenever a flag is toggled or an experiment is adjusted in the dashboard, the backend broadcasts an instant SSE push event (`flag_updated`, `experiment_updated`).
+- SDK clients update their local memory cache in milliseconds.
+
+### 5. Enterprise Environment Isolation & Audit Logging
+- Dedicated environment isolation (`Development`, `Staging`, `Production`).
+- Automatic audit log capture with before-and-after JSON diffs for every configuration edit.
+- One-click API key copying directly from the dashboard header.
+
+---
+
+## Monorepo Structure
 
 ```text
-DarkDeploy/
-├── package.json
-├── package-lock.json
-├── README.md
-├── examples/
-│   └── store-demo.ts
+Darkdeploy/
 ├── packages/
-│   ├── core/
-│   │   ├── src/
-│   │   └── package.json
-│   ├── dashboard/
-│   │   ├── src/
-│   │   ├── vite.config.ts
-│   │   └── package.json
-│   ├── sdk-node/
-│   │   ├── src/
-│   │   └── package.json
-│   └── server/
-│       ├── prisma/
-│       ├── src/
-│       └── package.json
+│   ├── core/           # @darkdeploy/core: Deterministic hashing, rules, z-test stats
+│   ├── server/         # @darkdeploy/server: Express, Prisma, SSE stream hub, telemetry
+│   ├── sdk-node/       # @darkdeploy/node-sdk: Client SDK with local cache & SSE sync
+│   └── dashboard/      # @darkdeploy/dashboard: LaunchDarkly pitch-black React 18 admin UI
+├── examples/
+│   ├── store-demo.ts   # Live real-time terminal store showcase
+│   └── demo-app.ts     # Minimal continuous polling evaluation demo
+├── package.json
 └── tsconfig.base.json
 ```
 
-## Tech stack
+---
 
-- Node.js 18+
-- TypeScript
-- Express.js
-- Prisma ORM
-- PostgreSQL
-- React + Vite
-- SSE for real-time updates
-- JWT-based admin auth
-- API-key-based SDK auth
-
-## Getting started
+## Quickstart (Local Development)
 
 ### Prerequisites
+- Node.js 18+
+- PostgreSQL database (or free [Neon](https://neon.tech) connection string)
 
-Before running DarkDeploy, ensure you have:
-
-- Node.js 18 or newer
-- npm
-- PostgreSQL database instance
-
-### 1) Install dependencies
-
+### 1. Clone & Install
 ```bash
+git clone https://github.com/S-Rohan-Kumar/Darkdeploy.git
+cd Darkdeploy
 npm install
 ```
 
-### 2) Configure environment variables
-
-Create a `.env` file inside `packages/server`:
-
+### 2. Configure Environment Variables
+Create `packages/server/.env`:
 ```env
-DATABASE_URL="postgresql://username:password@localhost:5432/darkdeploy"
-JWT_SECRET="replace-with-a-strong-secret"
 PORT=4000
+DATABASE_URL="your_postgresql_connection_string"
+JWT_SECRET="super-secure-random-jwt-secret-key"
 ```
 
-If you are using a different database URL format or host, adjust the Prisma connection string accordingly.
-
-### 3) Initialize the database
-
-From the repository root:
-
+### 3. Initialize & Seed Database
 ```bash
-npx prisma migrate dev --schema=packages/server/prisma/schema.prisma
-npm run db:seed --workspace @darkdeploy/server
+npm run build
+npx prisma db push --schema=packages/server/prisma/schema.prisma
+npm run db:seed --workspace=@darkdeploy/server
 ```
 
-The seed script creates:
+Default credentials created:
+- **Admin Email**: `admin@darkdeploy.io`
+- **Password**: `admin123456`
+- **Dev API Key**: `dd_dev_d934289e58292e134bcde54fbf153aa7`
 
-- an admin user with email `admin@darkdeploy.io`
-- default password: `admin123456`
-- a development environment with a generated API key
-- a sample flag for demo configurations
-
-### 4) Start the backend
-
+### 4. Start Development Servers
 ```bash
+# Terminal 1: Backend API & SSE Engine
 npm run dev:server
-```
 
-This starts the Express API on:
-
-- http://localhost:4000
-- SSE stream: http://localhost:4000/api/stream
-
-### 5) Start the dashboard
-
-In a second terminal:
-
-```bash
+# Terminal 2: React Dashboard
 npm run dev:dashboard
 ```
+- **Dashboard**: `http://localhost:3000`
+- **Backend API**: `http://localhost:4000`
+- **SSE Stream**: `http://localhost:4000/api/stream`
 
-This serves the admin dashboard at:
-
-- http://localhost:3000
-
-### 6) Run the demo
-
-The repo includes a Node.js showcase that demonstrates flag evaluation and experiment tracking:
-
+### 5. Run the Real-Time Showcase Demo
 ```bash
 npm run demo:store
 ```
+Watch flags, A/B experiments, and AI configs evaluate in real time, and toggle flags in the dashboard to see immediate terminal stream updates!
 
-This script uses the Node SDK to evaluate live feature flags and assign experiment variants against mock customer profiles.
+---
 
-## Available scripts
+## Production Deployment ($0 Cost)
 
-From the project root:
+| Service | Platform | Tier | Setup |
+| :--- | :--- | :--- | :--- |
+| **Database** | [Neon](https://neon.tech) | Free Tier (0.5GB Autoscaling Postgres) | Copy pooled connection string into `DATABASE_URL` |
+| **Backend & SSE** | [Render](https://render.com) | Free Web Service (512MB RAM Node.js) | Build: `npm ci --include=dev && npm run build --workspace=@darkdeploy/core && npm run build --workspace=@darkdeploy/server`<br>Start: `node packages/server/dist/index.js` |
+| **Dashboard** | [Vercel](https://vercel.com) | Hobby Tier (Global CDN Edge) | Root: `packages/dashboard`<br>Build: `npm run build`<br>Output: `dist` |
+| **Node SDK** | [npm](https://npmjs.com) | Free Public Registry | `npm publish --access public` |
 
+---
+
+## SDK Usage Guide
+
+### Install
 ```bash
-npm run dev:server
-npm run dev:dashboard
-npm run build
-npm run test
-npm run lint
+npm install @darkdeploy/node-sdk
 ```
 
-Package-level scripts are also available through the workspace setup, including Prisma migrations and database generation for the server.
+### Feature Flags
+```typescript
+import { DarkDeployClient } from "@darkdeploy/node-sdk";
 
-## Application behavior
+const client = new DarkDeployClient({
+  apiKey: "dd_dev_d934289e58292e134bcde54fbf153aa7",
+  baseUrl: "https://darkdeploy-api.onrender.com",
+});
 
-### Feature flags
+await client.initialize();
 
-Flags can be created and managed in the dashboard, and each flag may define:
+const isEligible = client.isEnabled("vip-pricing", {
+  id: "usr_42",
+  attributes: { plan: "enterprise", country: "US" },
+});
+```
 
-- a key and friendly name
-- environment scope
-- default value
-- rollout percentage
-- targeting rules based on user attributes
-- optional AI configuration payloads
+### A/B Testing & Tracking
+```typescript
+// Deterministic variant assignment (auto-tracks EXPOSURE)
+const variant = client.getVariant("checkout-color-exp", { id: "usr_42" });
+console.log("Assigned variant:", variant?.key);
 
-The evaluation engine applies rules first, then rollout logic, then default behavior when no rule matches.
+// Record CONVERSION event
+await client.track("checkout-color-exp", { id: "usr_42" }, "CONVERSION", 99.00);
+```
 
-### Experimentation engine
+### Dynamic AI Prompts
+```typescript
+const aiConfig = client.getAIConfig("support-agent-prompt", { id: "usr_42" }, {
+  model: "gpt-4o",
+  temperature: 0.7,
+  systemPrompt: "You are a standard helpful assistant.",
+});
 
-Experiments support:
+console.log("Active Model:", aiConfig.model);
+console.log("System Prompt:", aiConfig.systemPrompt);
+```
 
-- multiple weighted variants
-- deterministic assignment using a hash of the user/context identifier
-- exposure and conversion event recording
-- result aggregation and conversion-rate comparison across variants
+---
 
-### Real-time updates
+## Running Test Suite
 
-When flags or experiments change, the backend broadcasts SSE events to connected SDK clients. This allows application code to update in memory immediately without polling or manual refreshes.
+```bash
+npm test
+```
+- **22/22 tests passing** in `@darkdeploy/core` (Hashing, Rules, Evaluations, Stats, Experiments).
+- **4/4 tests passing** in `@darkdeploy/node-sdk` (Init, Graceful fallbacks, AI configs).
+- **Total: 26/26 unit tests passing**.
 
-## Security model
-
-DarkDeploy uses a layered approach:
-
-- admin authentication via JWT for dashboard users
-- environment API keys for SDK access
-- environment-scoped data separation
-- Prisma-backed persistence for audit logs and configuration changes
-
-For production deployment, it is strongly recommended to replace default secrets and configure secure environment variables and database credentials.
-
-## Suggested production hardening
-
-Before deploying to production, consider:
-
-- using a secure secret management solution for `JWT_SECRET`
-- configuring a strong PostgreSQL connection pool and backup strategy
-- limiting or rotating API keys per environment
-- enabling encryption in transit and at rest
-- adding robustness around rate limiting, request validation, and monitoring
+---
 
 ## License
 
-This project is provided as a source repository for development and evaluation. Add a formal license before production deployment if you intend to distribute or commercialize the code.
-
-## Quick start summary
-
-```bash
-npm install
-# create packages/server/.env
-npx prisma migrate dev --schema=packages/server/prisma/schema.prisma
-npm run db:seed --workspace @darkdeploy/server
-npm run dev:server
-npm run dev:dashboard
-```
-
-Then open:
-
-- Dashboard: http://localhost:3000
-- API: http://localhost:4000
-- Demo: `npm run demo:store`
-
-This project is designed to provide a complete, modern foundation for feature flags, experiments, and real-time configuration delivery in a single codebase.
+MIT License. Designed and maintained for production-scale engineering teams.

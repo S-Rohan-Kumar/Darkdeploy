@@ -1,9 +1,9 @@
 import { Flag, Environment, AuditLog, User, Experiment, ExperimentResultsData, AIConfig } from '../types';
 
-const viteEnv = (import.meta as unknown as { env?: { VITE_API_URL?: string } }).env;
+const viteEnv = (import.meta as unknown as { env?: { VITE_API_URL?: string; PROD?: boolean } }).env;
 const API_BASE = viteEnv?.VITE_API_URL
   ? `${viteEnv.VITE_API_URL}/api`
-  : '/api';
+  : (viteEnv?.PROD ? 'https://darkdeploy-api.onrender.com/api' : '/api');
 
 function getAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('darkdeploy_token');

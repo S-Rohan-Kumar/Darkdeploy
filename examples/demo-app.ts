@@ -9,7 +9,7 @@ async function main() {
 
   const client = new DarkDeployClient({
     apiKey: API_KEY,
-    baseUrl: 'http://localhost:4000',
+    baseUrl: process.env.DARKDEPLOY_URL || 'https://darkdeploy-api.onrender.com',
   });
 
   await client.initialize();
@@ -26,8 +26,8 @@ async function main() {
   };
 
   setInterval(() => {
-    const enterpriseResult = client.evaluateFlag('new-checkout-flow', enterpriseUser);
-    const freeResult = client.evaluateFlag('new-checkout-flow', freeUser);
+    const enterpriseResult = client.evaluate('new-checkout-flow', enterpriseUser);
+    const freeResult = client.evaluate('new-checkout-flow', freeUser);
 
     const timestamp = new Date().toLocaleTimeString();
 

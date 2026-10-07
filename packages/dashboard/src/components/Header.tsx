@@ -6,6 +6,8 @@ import {
   SlidersHorizontal,
   Plus,
   ChevronDown,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { Environment } from '../types';
 
@@ -27,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
   onCreateFlag,
 }) => {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
 
   return (
     <header className="border-b border-dark-750 bg-dark-900 px-6 py-4 space-y-4">
@@ -69,6 +72,25 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
           </div>
+
+          {selectedEnvironment?.apiKey && (
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(selectedEnvironment.apiKey);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              title="Copy SDK API Key"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-dark-800 border border-dark-700 hover:border-dark-600 text-xs font-mono text-slate-300 hover:text-white transition"
+            >
+              {copied ? (
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 text-slate-400" />
+              )}
+              <span>{copied ? 'Copied' : `${selectedEnvironment.apiKey.slice(0, 10)}...`}</span>
+            </button>
+          )}
 
           <button
             onClick={onCreateFlag}
